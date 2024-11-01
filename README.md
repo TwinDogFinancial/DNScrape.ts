@@ -1,6 +1,6 @@
-# Project Name
+# DNSScrape
 
-A brief description of your project, its purpose, and functionality.
+A CLI tool to scrape DNS records from a domain and save to a JSON file.
 
 ## Table of Contents
 
