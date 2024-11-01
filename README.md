@@ -30,7 +30,7 @@ Ensure you have the following installed on your system:
    Clone the repository to your local machine using Git:
 
    ```bash
-   git clone https://github.com/pstagner/your-repository-name.git
+   git clone https://github.com/TwinDogFinancial/DNScrape.git
    ```
 
    Replace `your-repository-name` with the actual name of your repository.
@@ -38,7 +38,7 @@ Ensure you have the following installed on your system:
 2. **Navigate to the Project Directory**
 
    ```bash
-   cd your-repository-name
+   cd DNScrape
    ```
 
 3. **Install Dependencies**
@@ -168,4 +168,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Provide your contact information for users to reach out.
 
 - **Email**: paul@twindogfinancial.com
-- **GitHub**: [StaxBentley](https://github.com/pstagner)
+- **GitHub**: [TwinDogFinancial](https://github.com/TwinDogFinancial)
