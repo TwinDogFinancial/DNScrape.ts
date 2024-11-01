@@ -1,0 +1,21 @@
+{
+  "name": "dns-scraper",
+  "version": "1.0.0",
+  "description": "DNS Scraper CLI Tool",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Your Name",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^22.8.6",
+    "commander": "^10.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  },
+  "keywords": []
+}
