@@ -1,0 +1,27 @@
+$TTL 3600
+@   IN  SOA ns1.example.com. hostmaster.example.com. (
+        1730609898407 ; Serial
+        7200      ; Refresh
+        3600      ; Retry
+        1209600   ; Expire
+        3600     ) ; Minimum TTL
+
+; Name Servers
+    IN  NS  elliott.ns.cloudflare.com.
+    IN  NS  sydney.ns.cloudflare.com.
+
+; Mail Servers
+    IN  MX  10 _dc-mx.1b9ef04bce62.twindogfinancial.com.
+    IN  MX  20 _dc-mx.1b9ef04bce62.twindogfinancial.com.
+    IN  MX  0 _dc-mx.1b9ef04bce62.twindogfinancial.com.
+
+; A Records
+@            IN  A     104.21.21.75
+@            IN  A     172.67.197.7
+
+; AAAA Records
+@            IN  AAAA  2606:4700:3034::ac43:c507
+@            IN  AAAA  2606:4700:3036::6815:154b
+
+; TXT Records
+@           IN  TXT   "v=spf1 +a +mx +ip4:139.64.165.67 ~all"

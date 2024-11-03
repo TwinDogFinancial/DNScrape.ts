@@ -11,3 +11,4 @@ __pycache__/
 
 # Node.js
 node_modules/
+output.json

@@ -1,83 +1,133 @@
 import { promises as dns } from 'dns';
 import { writeFileSync } from 'fs';
 import { Command } from 'commander';
+import { createZoneFile } from './zonerecordfile';
 
-
-/**
- * Domain to query.
- */
 const DOMAIN: string = process.argv[2];
-
-/**
- * Output file.
- */
 const OUTPUT_FILE: string = process.argv[3];
-
-/**
- * List of DNS record types to query.
- */
+const OUTPUT_TYPE: string = process.argv[4];
 const RECORD_TYPES: string[] = ['A', 'AAAA', 'MX', 'NS', 'TXT', 'CNAME', 'SOA'];
 
-/**
- * Initialize the Commander command.
- */
 const program = new Command();
 
-/**
- * Define a type for DNS records.
- */
 type DNSRecord = {
-    type: string;
-    records: any[];
+  type: string;
+  records: any[];
 };
 
-/**
- * Function to query DNS records.
- * @param domain - The domain to query.
- * @param type - The DNS record type.
- * @returns A promise that resolves to a DNSRecord object.
- */
-export async function queryDNSRecords(domain: string, type: string): Promise<DNSRecord> {
-    try {
-        const records = await dns.resolve(domain, type) as any;
-        return { type, records };
-    } catch (error) {
-        if ((error as NodeJS.ErrnoException).code === 'ENODATA') {
-            console.warn(`No ${type} records found for ${domain}.`);
-        } else {
-            console.error(`Error querying ${type} records for ${domain}:`, (error as Error).message);
-        }
-        return { type, records: [] };
-    }
+interface DNSZone {
+  origin: string;
+  ttl: number;
+  soa: {
+    mname: string;
+    rname: string;
+    serial: number;
+    refresh: number;
+    retry: number;
+    expire: number;
+    minimum: number;
+  };
+  ns: string[];
+  a: Record<string, string[]>;
+  aaaa: Record<string, string[]>;
+  mx: { preference: number; exchange: string }[];
+  txt: string[];
+  cname: Record<string, string[]>;
 }
 
-/**
- * Function to gather and export DNS records.
- * @param domain - The domain to query.
- * @param outputFile - The file path to write the DNS records.
- */
-export async function exportDNSRecords(domain: string = DOMAIN, outputFile: string = OUTPUT_FILE): Promise<void> {
-    const results: Record<string, any[]> = {};
-
-    for (const type of RECORD_TYPES) {
-        console.log(`Querying ${type} records for ${domain}`);
-        const result = await queryDNSRecords(domain, type);
-        results[type] = result.records;
+export async function queryDNSRecords(domain: string, type: string): Promise<DNSRecord> {
+  try {
+    const records = await dns.resolve(domain, type) as any;
+    return { type, records };
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENODATA') {
+      console.warn(`No ${type} records found for ${domain}.`);
+    } else {
+      console.error(`Error querying ${type} records for ${domain}:`, (error as Error).message);
     }
+    return { type, records: [] };
+  }
+}
 
-    // Write results to a JSON file
+export async function exportDNSRecords(domain: string = DOMAIN, outputFile: string = OUTPUT_FILE): Promise<void> {
+  const results: Record<string, any[]> = {};
+
+  for (const type of RECORD_TYPES) {
+    console.log(`Querying ${type} records for ${domain}`);
+    const result = await queryDNSRecords(domain, type);
+    results[type] = result.records;
+  }
+
+  // Construct DNSZone object
+  const dnsZone: DNSZone = {
+    origin: domain,
+    ttl: 3600, // Default TTL, you can adjust as needed
+    soa: {
+      mname: 'ns1.example.com', // Replace with your nameserver
+      rname: 'hostmaster.example.com', // Replace with your email, '.' instead of '@'
+      serial: Date.now(),
+      refresh: 7200,
+      retry: 3600,
+      expire: 1209600,
+      minimum: 3600,
+    },
+    ns: results['NS'] || [],
+    a: {},
+    aaaa: {},
+    mx: results['MX']?.map((mx: any) => ({
+      preference: mx.priority,
+      exchange: mx.exchange,
+    })) || [],
+    txt: results['TXT']?.flat() || [],
+    cname: {},
+  };
+
+  // Populate A records
+  if (results['A']) {
+    dnsZone.a[domain] = results['A'];
+  }
+
+  // Populate AAAA records
+  if (results['AAAA']) {
+    dnsZone.aaaa[domain] = results['AAAA'];
+  }
+
+  // Populate CNAME records (Assuming you have CNAME records in your results)
+  if (results['CNAME']) {
+    results['CNAME'].forEach((cname: any) => {
+      // Assuming cname has 'name' and 'alias'
+      dnsZone.cname[cname.alias] = [cname.name];
+    });
+  }
+
+  // Generate zone file content
+  const zoneFileContent = createZoneFile(dnsZone);
+
+  // Write output based on OUTPUT_TYPE
+  if (OUTPUT_TYPE === 'json') {
     writeFileSync(outputFile, JSON.stringify(results, null, 2));
     console.log(`DNS records have been exported to ${outputFile}`);
+  } else if (OUTPUT_TYPE === 'txt') {
+    writeFileSync(outputFile, zoneFileContent);
+    console.log(`DNS zone file has been exported to ${outputFile}`);
+  } else {
+    console.error(`Unsupported output type: ${OUTPUT_TYPE}. Use 'json' or 'txt'.`);
+  }
 }
 
-program
-  .version('1.0.0')
-  .description('DNS Scraper CLI Tool')
-  .option('-d, --domain <domain>', 'Domain to query', DOMAIN)
-  .option('-o, --output <file>', 'Output JSON file', OUTPUT_FILE)
-  .action(async (options) => {
-    const { domain, output } = options;
-    await exportDNSRecords(domain, output);
-  });
+function main() {
+  program
+    .version('1.0.0')
+    .description('DNS Scraper CLI Tool')
+    .option('-d, --domain <domain>', 'Domain to query', DOMAIN)
+    .option('-o, --output <file>', 'Output file', OUTPUT_FILE)
+    .option('-t, --type <type>', 'Output type: json or txt', OUTPUT_TYPE)
+    .action(async (options) => {
+      const { domain, output, type } = options;
+      await exportDNSRecords(domain, output);
+    });
 
-program.parse(process.argv);
+  program.parse(process.argv);
+}
+
+main();
