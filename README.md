@@ -1,6 +1,6 @@
 # DNSScrape
 
-A CLI tool to scrape DNS records from a domain and save to a JSON file.
+A CLI tool to scrape DNS records from a domain and save them to a JSON file or DNS zone file.
 
 ## Table of Contents
 
@@ -13,7 +13,7 @@ A CLI tool to scrape DNS records from a domain and save to a JSON file.
 
 ## Installation
 
-Follow these steps to set up the DNS Scraper CLI Tool on your local machine.
+Follow these steps to set up the DNSScrape CLI Tool on your local machine.
 
 ### Prerequisites
 
@@ -21,7 +21,7 @@ Ensure you have the following installed on your system:
 
 - **[Node.js](https://nodejs.org/)** (v14 or later)
 - **[npm](https://www.npmjs.com/)** (comes with Node.js)
-- **[TypeScript](https://www.typescriptlang.org/)**
+- **[TypeScript](https://www.typescriptlang.org/)** (globally installed)
 
 ### Steps
 
@@ -30,15 +30,13 @@ Ensure you have the following installed on your system:
    Clone the repository to your local machine using Git:
 
    ```bash
-   git clone https://github.com/TwinDogFinancial/DNScrape.git
+   git clone https://github.com/TwinDogFinancial/DNSScrape.git
    ```
-
-   Replace `your-repository-name` with the actual name of your repository.
 
 2. **Navigate to the Project Directory**
 
    ```bash
-   cd DNScrape
+   cd DNSScrape
    ```
 
 3. **Install Dependencies**
@@ -49,7 +47,7 @@ Ensure you have the following installed on your system:
    npm install
    ```
 
-   This command installs both dependencies and devDependencies listed in the `package.json` file, including TypeScript and Commander.
+   This command installs both `dependencies` and `devDependencies` listed in the `package.json` file, including TypeScript and Commander.
 
 4. **Build the Project**
 
@@ -63,26 +61,35 @@ Ensure you have the following installed on your system:
 
 5. **Run the Application**
 
-   After building the project, you can run the DNS Scraper CLI Tool using:
+   After building the project, you can run the DNSScrape CLI Tool using:
 
    ```bash
-   npm start -- --domain example.com --output dns-records.json
+   npm start -- --domain <domain> --output <output_file> --type <output_type>
    ```
 
    **Parameters:**
 
    - `--domain` (or `-d`): The domain you want to query DNS records for.
-   - `--output` (or `-o`): The path to the output JSON file where DNS records will be saved.
+   - `--output` (or `-o`): The path to the output file where DNS records will be saved.
+   - `--type` (or `-t`): The output file type. Use `json` for JSON format or `txt` for DNS zone file format.
 
    **Example:**
 
+   To export DNS records for `example.com` to a JSON file:
+
    ```bash
-   npm start -- --domain github.com --output github-dns.json
+   npm start -- --domain example.com --output example-dns.json --type json
+   ```
+
+   To export DNS records for `example.com` to a DNS zone file:
+
+   ```bash
+   npm start -- --domain example.com --output example-zone.txt --type txt
    ```
 
 6. **Optional: Running in Development Mode**
 
-   If you want to run the project without building every time you make changes, you can use a development tool like `ts-node`. First, install `ts-node` globally:
+   If you want to run the project without building every time you make changes, you can use `ts-node`. First, install `ts-node` globally:
 
    ```bash
    npm install -g ts-node
@@ -91,7 +98,13 @@ Ensure you have the following installed on your system:
    Then, run the TypeScript file directly:
 
    ```bash
-   ts-node src/index.ts --domain example.com --output dns-records.json
+   ts-node src/index.ts --domain <domain> --output <output_file> --type <output_type>
+   ```
+
+   **Example:**
+
+   ```bash
+   ts-node src/index.ts --domain example.com --output example-dns.json --type json
    ```
 
 ### Additional Information
@@ -135,17 +148,37 @@ Ensure you have the following installed on your system:
 
 ---
 
-By following these steps, you should have the DNS Scraper CLI Tool up and running on your local machine. If you encounter any issues or have questions, feel free to reach out through the [Contact](#contact) section.
+By following these steps, you should have the DNSScrape CLI Tool up and running on your local machine. If you encounter any issues or have questions, feel free to reach out through the [Contact](#contact) section.
 
 ## Usage
 
-Provide examples and instructions on how to use your project.
+Here are some examples and instructions on how to use DNSScrape.
+
+### Export DNS Records to JSON
+
+To export DNS records of a domain to a JSON file:
+
+```bash
+npm start -- --domain example.com --output example-dns.json --type json
+```
+
+This command will query the DNS records for `example.com` and save them in JSON format to `example-dns.json`.
+
+### Export DNS Records to Zone File
+
+To export DNS records of a domain to a DNS zone file:
+
+```bash
+npm start -- --domain example.com --output example-zone.txt --type txt
+```
+
+This command will query the DNS records for `example.com` and save them in a standard DNS zone file format to `example-zone.txt`.
 
 ## Features
 
-- Scrape AllDNS records from a domain
-- Save to in JSON format
-- Import to New DNS Provider
+- Scrape all DNS records from a domain.
+- Save DNS records in JSON format or as a DNS zone file.
+- Easily import records to a new DNS provider using the generated zone file.
 
 ## Contributing
 
@@ -158,8 +191,6 @@ Guidelines for how other developers can contribute to your project.
 5. Open a Pull Request.
 
 ## License
-
-Specify the license under which your project is distributed. For example:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
